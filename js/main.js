@@ -33,8 +33,6 @@ function main() {
         templ = cv.imread('frame0');
         dst = new cv.Mat();
         mask = new cv.Mat();
-        cv.imshow('output0', src);
-        cv.imshow('output1', templ);
         state = 1;
     }
     if (state === 1) {
@@ -44,19 +42,18 @@ function main() {
     }
     if (state === 2) {
         $("#output_text").append("End of Program\n");
-        
+
         let result = cv.minMaxLoc(dst, mask);
         let maxPoint = result.maxLoc;
         let color = new cv.Scalar(255, 0, 0, 255);
         let point = new cv.Point(maxPoint.x + templ.cols, maxPoint.y + templ.rows);
         cv.rectangle(src, maxPoint, point, color, 2, cv.LINE_8, 0);
-        cv.imshow('output2', mask);
+
+        cv.imshow('output0', src);
+        cv.imshow('output1', templ);
+        cv.imshow('output2', dst);
         cv.imshow('output0', src);
 
-        src.delete();
-        dst.delete();
-        mask.delete();
-        
         state = 3;
     }
 }
