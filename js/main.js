@@ -7,6 +7,8 @@ $("#loading").hide();
 $("#loader").prop("src", "img/lol.png");
 
 // convert to mat
-let mat = cv.imread($("#loader"));
-cv.imshow($("#output"), mat);
-mat.delete();
+$("#loader").on("load", function () {
+    let mat = cv.imread($("#loader"));
+    cv.imshow($("#output"), mat);
+    mat.delete();
+});
