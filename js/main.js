@@ -40,6 +40,7 @@ function main() {
     if (state === 1) {
         $("#output_text").append("Using NCC...\n");
         cv.matchTemplate(src, templ, dst, cv.TM_CCORR_NORMED, mask);
+        cv.imshow('output2', dst);
         state = 2;
     }
 }
