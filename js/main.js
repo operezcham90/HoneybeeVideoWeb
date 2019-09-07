@@ -4,7 +4,7 @@
 $("#loading").hide();
 
 // load image files
-$("#frame1").prop("src", "img/lol.png");
+$("#frame1").prop("src", "img/lol_l.png");
 $("#frame0").prop("src", "img/lol_l.png");
 
 // wait for image
@@ -41,6 +41,7 @@ function main() {
         state = 2;
     }
     if (state === 2) {
+        state = 3;
         $("#output_text").append("End of Program\n");
 
         let result = cv.minMaxLoc(dst, mask);
@@ -59,7 +60,5 @@ function main() {
         cv.imshow('output1', templ);
         cv.imshow('output2', dst);
         cv.imshow('output0', src);
-
-        state = 3;
     }
 }
