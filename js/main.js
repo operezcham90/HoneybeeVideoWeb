@@ -40,7 +40,11 @@ function main() {
     if (state === 1) {
         $("#output_text").append("Using NCC...\n");
         cv.matchTemplate(src, templ, dst, cv.TM_CCORR_NORMED, mask);
-
+        state = 2;
+    }
+    if (state === 2) {
+        $("#output_text").append("End of Program\n");
+        
         let result = cv.minMaxLoc(dst, mask);
         let maxPoint = result.maxLoc;
         let color = new cv.Scalar(255, 0, 0, 255);
@@ -52,11 +56,7 @@ function main() {
         src.delete();
         dst.delete();
         mask.delete();
-
-        state = 2;
-    }
-    if (state === 2) {
-        $("#output_text").append("End of Program\n");
+        
         state = 3;
     }
 }
