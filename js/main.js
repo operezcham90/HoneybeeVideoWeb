@@ -20,5 +20,7 @@ $("#frame1").on("load", function () {
 // main loop
 setInterval(main, 60);
 function main() {
-    $("#output_text").val(frame0_loaded + " " + frame1_loaded);
+    if (frame0_loaded && frame1_loaded) {
+        $("#output_text").append("Image frames loaded!\n");
+    }
 }
