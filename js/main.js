@@ -4,8 +4,8 @@
 $("#loading").hide();
 
 // load image files
-$("#frame1").prop("src", "img/lol.png");
-$("#frame0").prop("src", "img/lol_l.png");
+$("#frame1").prop("src", "img/Casader00001.tif");
+$("#frame0").prop("src", "img/Casaizq00001_t.tif");
 
 // wait for image
 var frame0_loaded = false;
@@ -45,13 +45,10 @@ function main() {
         let result = cv.minMaxLoc(dst, mask);
         let maxPoint = result.maxLoc;
         let maxVal = result.maxVal;
-
         $("#output_text").append("Max: " + maxVal + " (" + maxPoint.x + "," + maxPoint.y + ")\n");
-
         let color = new cv.Scalar(255, 0, 0, 255);
         let point = new cv.Point(maxPoint.x + templ.cols, maxPoint.y + templ.rows);
         cv.rectangle(src, maxPoint, point, color, 2, cv.LINE_8, 0);
-
         cv.imshow('output0', src);
         cv.imshow('output1', templ);
         cv.imshow('output2', dst);
