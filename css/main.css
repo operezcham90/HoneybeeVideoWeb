@@ -1,3 +1,6 @@
 .loader {
     display: none;
 }
+canvas {
+    border: 1px black solid;
+}
