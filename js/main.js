@@ -1,1 +1,1 @@
-$("#mu_e").val("Hola Mundo");
+$("#loader").prop("src", "img/lol.png");
