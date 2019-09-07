@@ -8,7 +8,7 @@ $("#loader").prop("src", "img/lol.png");
 
 // convert to mat
 $("#loader").on("load", function () {
-    let mat = cv.imread($("#loader"));
+    let mat = cv.imread($("#loader").get(0));
     cv.imshow("output", mat);
     mat.delete();
 });
