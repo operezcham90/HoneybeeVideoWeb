@@ -4,8 +4,8 @@
 $("#loading").hide();
 
 // load image files
-$("#frame1").prop("src", "img/Casader00001.tif");
-$("#frame0").prop("src", "img/Casaizq00001_t.tif");
+$("#frame1").prop("src", "img/Casader00001.png");
+$("#frame0").prop("src", "img/Casaizq00001_t.png");
 
 // wait for image
 var frame0_loaded = false;
