@@ -18,9 +18,15 @@ $("#frame1").on("load", function () {
 });
 
 // main loop
+var state = 0;
 setInterval(main, 60);
 function main() {
-    if (frame0_loaded && frame1_loaded) {
+    if (frame0_loaded && frame1_loaded && state === 0) {
         $("#output_text").append("Image frames loaded!\n");
+        state = 1;
+    }
+    if (state === 1) {
+        $("#output_text").append("Using NCC...\n");
+        state = 2;
     }
 }
