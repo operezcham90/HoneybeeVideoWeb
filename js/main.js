@@ -20,7 +20,7 @@ $("#frame1").on("load", function () {
 });
 function check_loading() {
     if (frame0_loaded && frame1_loaded) {
-
+        main();
     }
 }
 
@@ -37,13 +37,13 @@ function main() {
     dst = new cv.Mat();
     mask = new cv.Mat();
     $("#output_text").append("Image frames loaded!\n");
-    
+
     $("#output_text").append("Using NCC...\n");
     cv.matchTemplate(src, templ, dst, cv.TM_CCORR_NORMED, mask);
     let result = cv.minMaxLoc(dst, mask);
     let maxPoint = result.maxLoc;
     let maxVal = result.maxVal;
-    
+
     $("#output_text").append("Max: " + maxVal + " (" + maxPoint.x + "," + maxPoint.y + ")\n");
     let color = new cv.Scalar(255, 0, 0, 255);
     let point = new cv.Point(maxPoint.x + templ.cols, maxPoint.y + templ.rows);
