@@ -4,7 +4,7 @@
 $("#loading").hide();
 
 // load image files
-$("#frame1").prop("src", "img/Casader00001.png");
+$("#frame1").prop("src", "img/Casaizq00001_t.png");
 $("#frame0").prop("src", "img/Casaizq00001_t.png");
 
 // wait for image
