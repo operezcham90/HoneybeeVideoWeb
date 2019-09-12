@@ -52,4 +52,5 @@ function main() {
     cv.imshow('output1', templ);
     cv.imshow('output2', dst);
     cv.imshow('output0', src);
+    alert(src.at(0, 0));
 }
