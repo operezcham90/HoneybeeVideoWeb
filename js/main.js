@@ -6,7 +6,7 @@ function read_frame(url) {
             return this.ctx.getImageData(x, y, 1, 1).data;
         }
     };
-    alert('loading');
+    alert(frame.img.complete);
     frame.img.src = url;
     while (!frame.img.complete) {
     }
