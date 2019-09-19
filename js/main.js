@@ -33,7 +33,7 @@ function loaded_frame() {
     var context = canvases[i].getContext('2d');
     context.drawImage(images[i], 0, 0);
     if (all) {
-        output('All frames loaded');
+        output('All frames loaded' + i);
     }
 }
 
