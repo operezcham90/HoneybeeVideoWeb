@@ -22,7 +22,6 @@ function load_frames() {
     }
 }
 
-
 // wait for the loaded frame
 function loaded_frame() {
     var i = JSON.parse(this.id).img;
@@ -37,6 +36,5 @@ function loaded_frame() {
         output('All frames loaded');
     }
 }
-
 
 $(document).ready(load_frames);
