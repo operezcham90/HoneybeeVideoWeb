@@ -10,6 +10,7 @@ function read_frame(url) {
     frame.img.onload = function () {
         frame.ctx.drawImage(frame.img, 0, 0, frame.img.width, frame.img.height);
         frame.rdy = true;
+        alert('loaded');
     };
     frame.img.src = url;
     while (!frame.rdy) {
