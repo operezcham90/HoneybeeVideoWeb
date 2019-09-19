@@ -5,7 +5,7 @@ var canvases = [];
 function load_frames() {
     for (var i = 0; i < 2; i++) {
         images[i] = new Image();
-        images[i].id = JSON.stringify({'img': 0});
+        images[i].id = JSON.stringify({'img': i});
         images[i].src = 'img/test.png';
         images[i].onload = loaded_frame;
     }
