@@ -6,11 +6,7 @@ function read_frame(url) {
             return this.ctx.getImageData(x, y, 1, 1).data;
         }
     };
-    $("#output_text").append(frame.img.complete + '\n');
     frame.img.src = url;
-    while (!(frame.img.complete)) {
-        $("#output_text").append(frame.img.complete + '\n');
-    }
     frame.ctx.drawImage(frame.img, 0, 0, frame.img.width, frame.img.height);
     return frame;
 }
