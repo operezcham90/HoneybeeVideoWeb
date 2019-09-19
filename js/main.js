@@ -10,6 +10,7 @@ function Frame(url) {
         this.ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height);
         this.ready = true;
     };
+    return this;
 }
 
 /*var img = new Image();
