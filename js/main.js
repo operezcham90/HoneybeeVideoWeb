@@ -26,3 +26,5 @@ function loaded_frame() {
         }
     }
 }
+
+$(document).ready(load_frames);
