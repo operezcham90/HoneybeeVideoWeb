@@ -2,18 +2,16 @@ function read_frame(url) {
     var frame = {
         img: new Image(),
         ctx: document.createElement('canvas'),
-        rdy: false,
         get_color: function (x, y) {
             return this.ctx.getImageData(x, y, 1, 1).data;
         }
     };
-    frame.img.onload = function () {
-        frame.ctx.drawImage(frame.img, 0, 0, frame.img.width, frame.img.height);
-        frame.rdy = true;
-        alert('loaded');
-    };
     alert('loading');
     frame.img.src = url;
+    while (!frame.img.complete) {
+    }
+    frame.ctx.drawImage(frame.img, 0, 0, frame.img.width, frame.img.height);
+    alert('loaded');
     return frame;
 }
 
