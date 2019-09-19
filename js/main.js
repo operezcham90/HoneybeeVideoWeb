@@ -14,8 +14,6 @@ function read_frame(url) {
     };
     alert('loading');
     frame.img.src = url;
-    while (!frame.rdy) {
-    }
     return frame;
 }
 
