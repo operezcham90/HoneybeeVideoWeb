@@ -12,6 +12,7 @@ function read_frame(url) {
         frame.rdy = true;
         alert('loaded');
     };
+    alert('loading');
     frame.img.src = url;
     while (!frame.rdy) {
     }
