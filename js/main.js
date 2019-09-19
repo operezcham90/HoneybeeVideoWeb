@@ -24,14 +24,14 @@ function load_frames() {
 
 // wait for the loaded frame
 function loaded_frame() {
-    var i = JSON.parse(this.id).img;
-    canvases[i] = document.createElement('canvas');
-    var context = canvases[i].getContext('2d');
-    context.drawImage(images[i], 0, 0);
     var all = true;
     for (var j = 0; j < images.length; j++) {
         all &= images[j].complete;
     }
+    var i = JSON.parse(this.id).img;
+    canvases[i] = document.createElement('canvas');
+    var context = canvases[i].getContext('2d');
+    context.drawImage(images[i], 0, 0);
     if (all) {
         output('All frames loaded');
     }
