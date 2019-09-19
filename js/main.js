@@ -2,10 +2,17 @@
 var images = [];
 var canvases = [];
 
-function get_color(canvas) {
-    canvas.getContext('2d')
+// get pixel color
+function get_color(canvas, x, y) {
+    return canvas.context.getImageData(x, y, 1, 1).data;
 }
 
+// write to output text
+function output(text) {
+    $('#output_text').append(text + '\n');
+}
+
+// load all the frames
 function load_frames() {
     for (var i = 0; i < 2; i++) {
         images[i] = new Image();
@@ -15,16 +22,21 @@ function load_frames() {
     }
 }
 
+
+// wait for the loaded frame
 function loaded_frame() {
     var i = JSON.parse(this.id).img;
     canvases[i] = document.createElement('canvas');
     var context = canvases[i].getContext('2d');
     context.drawImage(images[i], 0, 0);
-    for (var x = 0; x < 2; x++) {
-        for (var y = 0; y < 2; y++) {
-            $('#output_text').append(JSON.stringify(context.getImageData(x, y, 1, 1).data));
-        }
+    var all = true;
+    for (var j = 0; j < images.length; j++) {
+        all &= images[j].complete;
+    }
+    if (all) {
+        output('All frames loaded');
     }
 }
+
 
 $(document).ready(load_frames);
