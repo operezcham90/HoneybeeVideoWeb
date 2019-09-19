@@ -22,7 +22,7 @@ function loaded_frame() {
     context.drawImage(images[i], 0, 0);
     for (var x = 0; x < 2; x++) {
         for (var y = 0; y < 2; y++) {
-            $('#output_text').append(JSON.stringify(context.getImageData(i, j, 1, 1).data));
+            $('#output_text').append(JSON.stringify(context.getImageData(x, y, 1, 1).data));
         }
     }
 }
