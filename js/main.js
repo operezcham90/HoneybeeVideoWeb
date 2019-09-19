@@ -15,6 +15,7 @@ function output(text) {
 
 // load all the frames
 function load_frames() {
+    loaded_images = 0;
     for (var i = 0; i < 2; i++) {
         images[i] = new Image();
         images[i].id = JSON.stringify({'img': i});
