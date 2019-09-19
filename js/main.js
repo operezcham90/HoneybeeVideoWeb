@@ -8,11 +8,10 @@ function read_frame(url) {
     };
     $("#output_text").append(frame.img.complete + '\n');
     frame.img.src = url;
-    while (!frame.img.complete) {
+    while (!(frame.img.complete)) {
         $("#output_text").append(frame.img.complete + '\n');
     }
     frame.ctx.drawImage(frame.img, 0, 0, frame.img.width, frame.img.height);
-    alert('loaded');
     return frame;
 }
 
