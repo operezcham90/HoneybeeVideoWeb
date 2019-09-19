@@ -1,16 +1,20 @@
 function read_frame(url) {
-    this.img = new Image();
-    this.ctx = document.createElement('canvas');
-    this.img.onload = function () {
-        this.ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height);
-        this.ready = true;
+    var frame = {
+        img: new Image(),
+        ctx: document.createElement('canvas'),
+        rdy: false,
+        get_color: function (x, y) {
+            return this.ctx.getImageData(x, y, 1, 1).data;
+        }
     };
-    this.img.src = url;
-    this.ready = false;
-    this.get_color = function (x, y) {
-        return this.ctx.getImageData(x, y, 1, 1).data;
+    frame.img.onload = function () {
+        frame.ctx.drawImage(frame.img, 0, 0, frame.img.width, frame.img.height);
+        frame.rdy = true;
     };
-    return this;
+    frame.img.src = url;
+    while (!frame.rdy) {
+    }
+    return frame;
 }
 
 /*var img = new Image();
@@ -27,6 +31,4 @@ function read_frame(url) {
  }*/
 
 var f = read_frame('img/test.png');
-while (!f.ready) {
-}
 alert(f.get_color(1, 1));
