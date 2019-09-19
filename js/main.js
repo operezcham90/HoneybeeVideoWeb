@@ -1,14 +1,14 @@
-function Frame(url) {
+function read_frame(url) {
     this.img = new Image();
     this.ctx = document.createElement('canvas');
-    this.img.src = url;
-    this.ready = false;
-    this.getColor = function (x, y) {
-        return this.ctx.getImageData(x, y, 1, 1).data;
-    };
     this.img.onload = function () {
         this.ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height);
         this.ready = true;
+    };
+    this.img.src = url;
+    this.ready = false;
+    this.get_color = function (x, y) {
+        return this.ctx.getImageData(x, y, 1, 1).data;
     };
     return this;
 }
@@ -26,7 +26,7 @@ function Frame(url) {
  }
  }*/
 
-var f = Frame('img/test.png');
+var f = read_frame('img/test.png');
 while (!f.ready) {
 }
-alert(f.getColor(1, 1));
+alert(f.get_color(1, 1));
