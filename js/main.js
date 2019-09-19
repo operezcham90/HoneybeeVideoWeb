@@ -2,6 +2,10 @@
 var images = [];
 var canvases = [];
 
+function get_color(canvas) {
+    canvas.getContext('2d')
+}
+
 function load_frames() {
     for (var i = 0; i < 2; i++) {
         images[i] = new Image();
@@ -12,19 +16,13 @@ function load_frames() {
 }
 
 function loaded_frame() {
-    alert(this.id);
+    var i = JSON.parse(this.id).img;
+    canvases[i] = document.createElement('canvas');
+    var context = canvases[i].getContext('2d');
+    context.drawImage(images[i], 0, 0);
+    for (var x = 0; x < 2; x++) {
+        for (var y = 0; y < 2; y++) {
+            $('#output_text').append(JSON.stringify(context.getImageData(i, j, 1, 1).data));
+        }
+    }
 }
-
-/*img.onload = function () {
- var canvas = document.createElement('canvas');
- var context = canvas.getContext('2d');
- context.drawImage(img, 0, 0, img.width, img.height);
- for (var i = 0; i < 2; i++) {
- for (var j = 0; j < 2; j++) {
- $('#output_text').append(JSON.stringify(context.getImageData(i, j, 1, 1).data));
- }
- }
- }
- 
- var f = read_frame('img/test.png');
- alert(f.get_color(1, 1));*/
