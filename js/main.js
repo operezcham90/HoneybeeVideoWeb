@@ -3,14 +3,16 @@ var images = [];
 var canvases = [];
 var loaded_images = 0;
 
+// utilities
+var Util = {
+    output: function (text) {
+        $('#output').append(text + '\n');
+    }
+};
+
 // get pixel color
 function get_color(canvas, x, y) {
     return canvas.context.getImageData(x, y, 1, 1).data;
-}
-
-// write to output text
-function output(text) {
-    $('#output_text').append(text + '\n');
 }
 
 // load all the frames
