@@ -37,8 +37,78 @@ var hb = {
         // print text
         $('#output').append(text + '\n');
     },
-    process: function() {
+    pixel: function (space, x, y) {
+        // get pixel from canvas
+        return (hb.spaces[space].canvas.getContext('2d')
+                .getImageData(x, y, 1, 1).data[0] +
+                hb.spaces[space].canvas.getContext('2d')
+                .getImageData(x, y, 1, 1).data[1] +
+                hb.spaces[space].canvas.getContext('2d')
+                .getImageData(x, y, 1, 1).data[2]) / 3;
+    },
+    individual: function (space, dimensions) {
+        return {
+            dim: dimensions,
+            space: space,
+            fit: 0
+        };
+    },
+    ncc: function (i1, i2) {
+        // starting points from individuals
+        var u1 = i1.dim[0] + i1.dim[2];
+        var v1 = i1.dim[1] + i1.dim[3];
+        var u2 = i2.dim[0] + i2.dim[2];
+        var v2 = i2.dim[1] + i2.dim[3];
+        var nx = i1.dim[4];
+        var ny = i1.dim[5];
+        var mx = hb.spaces[i1.space].image.naturalWidth;
+        var my = hb.spaces[i1.space].image.naturalHeight;
+        // negative values
+        if (nx < 0 || ny < 0 || mx < 0 || my < 0) {
+            return -100;
+        }
+        // window not inside frame
+        if (u1 + nx >= mx || u2 + nx >= mx || v1 + ny >= my || v2 + ny >= my ||
+                u1 < 0 || u2 < 0 || v1 < 0 || v2 < 0) {
+            return -100;
+        }
+        // get mean
+        var mean1 = 0;
+        var mean2 = 0;
+        for (var x = 0; x < nx; x++) {
+            for (var y = 0; y < ny; y++) {
+                mean1 += hb.pixel(i1.space, u1 + x, v1 + y);
+                mean2 += hb.pixel(i2.space, u2 + x, v2 + y);
+            }
+        }
+        mean1 /= nx * ny;
+        mean2 /= nx * ny;
+        // get cross correlation and sums of squared errors
+        var cross = 0;
+        var sum1 = 0;
+        var sum2 = 0;
+        for (var x = 0; x < nx; x++) {
+            for (var y = 0; y < ny; y++) {
+                var err1 = hb.pixel(i1.space, u1 + x, v1 + y) - mean1;
+                var err2 = hb.pixel(i2.space, u2 + x, v2 + y) - mean2;
+                cross += err1 * err2;
+                sum1 += err1 * err1;
+                sum2 += err2 * err2;
+            }
+        }
+        // only real numbers
+        if (sum1 < 0 || sum2 < 0 || sum1 * sum2 <= 0) {
+            return -100;
+        }
+        // result
+        return cross / Math.sqrt(sum1 * sum2);
+    },
+    process: function () {
         hb.output('Process started');
+        var i1 = hb.individual(0, [139.52, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
+        var i2 = hb.individual(1, [139.52, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
+        i1.fit = hb.ncc(i1, i2);
+        hb.output('Similarity: ' + i1.fit);
     }
 };
 // begin
