@@ -37,7 +37,7 @@ var hb = {
         // print text
         $('#output').append(text + '\n');
     },
-    process() {
+    process: function() {
 
     }
 };
