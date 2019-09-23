@@ -20,7 +20,7 @@ var hb = {
         hb.spaces[i].canvas.getContext('2d')
                 .drawImage(hb.spaces[i].image, 0, 0);
         hb.loaded++;
-        if (hb.loaded === hb.spaces.length) {
+        if (hb.loaded === 2) {
             hb.output('All frames loaded');
             hb.process();
         }
@@ -28,8 +28,8 @@ var hb = {
     read: function () {
         // read two frames
         hb.loaded = 0;
+        hb.spaces = [];
         for (var i = 0; i < 2; i++) {
-            hb.spaces = [];
             hb.space('img/0000000' + (i + 1) + '.jpg');
         }
     },
