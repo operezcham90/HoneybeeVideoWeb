@@ -25,22 +25,22 @@ var util = {
     },
     load: function () {
         var i = this.id.split('-')[1];
-        relation[i].canvas = document.createElement('canvas');
-        var context = relation[i].canvas.getContext('2d');
-        context.drawImage(relation[i].image, 0, 0);
+        this.relation[i].canvas = document.createElement('canvas');
+        var context = this.relation[i].canvas.getContext('2d');
+        context.drawImage(this.relation[i].image, 0, 0);
         loaded++;
-        if (loaded === util.relation.length) {
+        if (loaded === this.relation.length) {
             output('All frames loaded');
         }
     },
     read: function () {
         // read frames
         loaded = 0;
-        for (var i = 0; i < util.relation.length; i++) {
-            relation[i].image = new Image();
-            relation[i].image.id = 'c-' + i;
-            relation[i].image.src = relation[i].file;
-            relation[i].image.onload = load;
+        for (var i = 0; i < this.relation.length; i++) {
+            this.relation[i].image = new Image();
+            this.relation[i].image.id = 'c-' + i;
+            this.relation[i].image.src = this.relation[i].file;
+            this.relation[i].image.onload = load;
         }
     }
 };
