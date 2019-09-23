@@ -16,18 +16,15 @@ var honeybee = {
         var ny = i1.dimensions[5];
         var mx = util.relation[i1.space].image.naturalWidth;
         var my = util.relation[i1.space].image.naturalHeight;
-
         // negative values
         if (nx < 0 || ny < 0 || mx < 0 || my < 0) {
             return -100;
         }
-
         // window not inside frame
         if (u1 + nx >= mx || u2 + nx >= mx || v1 + ny >= my || v2 + ny >= my ||
                 u1 < 0 || u2 < 0 || v1 < 0 || v2 < 0) {
             return -100;
         }
-
         // get mean
         var mean1 = 0;
         var mean2 = 0;
@@ -39,7 +36,6 @@ var honeybee = {
         }
         mean1 /= nx * ny;
         mean2 /= nx * ny;
-
         // get cross correlation and sums of squared errors
         var cross = 0;
         var sigma1 = 0;
@@ -53,12 +49,10 @@ var honeybee = {
                 sigma2 += err2 * err2;
             }
         }
-
         // only real numbers
         if (sigma1 < 0 || sigma2 < 0 || sigma1 * sigma2 <= 0) {
             return -100;
         }
-
         // result
         return cross / Math.sqrt(sigma1 * sigma2);
     }
@@ -120,6 +114,5 @@ var util = {
         util.output('NCC:' + ncc);
     }
 };
-
 // begin
 $(document).ready(util.read);
