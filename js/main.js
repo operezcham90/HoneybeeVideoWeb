@@ -24,6 +24,7 @@ var util = {
         return canvas.context.getImageData(x, y, 1, 1).data;
     },
     load: function () {
+        // load frames
         var i = this.id.split('-')[1];
         util.relation[i].canvas = document.createElement('canvas');
         var context = util.relation[i].canvas.getContext('2d');
