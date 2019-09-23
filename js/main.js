@@ -30,7 +30,7 @@ var hb = {
         hb.loaded = 0;
         for (var i = 0; i < 2; i++) {
             hb.spaces = [];
-            space('img/0000000' + (i + 1) + '.jpg');
+            hb.space('img/0000000' + (i + 1) + '.jpg');
         }
     },
     output: function (text) {
@@ -38,7 +38,7 @@ var hb = {
         $('#output').append(text + '\n');
     },
     process: function() {
-
+        hb.output('Process started');
     }
 };
 // begin
