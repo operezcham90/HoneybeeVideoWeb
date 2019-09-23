@@ -37,19 +37,19 @@ var hb = {
         // print text
         $('#output').append(text + '\n');
     },
-    pixel: function (space, x, y) {
+    pixel: function (spc, x, y) {
         // get pixel from canvas
-        return (hb.spaces[space].canvas.getContext('2d')
+        return (hb.spaces[spc].canvas.getContext('2d')
                 .getImageData(x, y, 1, 1).data[0] +
-                hb.spaces[space].canvas.getContext('2d')
+                hb.spaces[spc].canvas.getContext('2d')
                 .getImageData(x, y, 1, 1).data[1] +
-                hb.spaces[space].canvas.getContext('2d')
+                hb.spaces[spc].canvas.getContext('2d')
                 .getImageData(x, y, 1, 1).data[2]) / 3;
     },
-    individual: function (space, dimensions) {
+    individual: function (spc, dimensions) {
         return {
             dim: dimensions,
-            spc: space,
+            spc: spc,
             fit: 0
         };
     },
