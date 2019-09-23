@@ -32,6 +32,7 @@ var util = {
         loaded++;
         if (loaded === util.relation.length) {
             util.output('All frames loaded');
+            util.process();
         }
     },
     read: function () {
@@ -43,6 +44,9 @@ var util = {
             util.relation[i].image.src = util.relation[i].file;
             util.relation[i].image.onload = util.load;
         }
+    },
+    process: function () {
+        output('Process started');
     }
 };
 
