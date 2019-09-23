@@ -46,7 +46,7 @@ var util = {
         }
     },
     process: function () {
-        output('Process started');
+        util.output('Process started');
     }
 };
 
