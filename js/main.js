@@ -41,7 +41,7 @@ var util = {
             util.relation[i].image = new Image();
             util.relation[i].image.id = 'c-' + i;
             util.relation[i].image.src = util.relation[i].file;
-            util.relation[i].image.onload = load;
+            util.relation[i].image.onload = util.load;
         }
     }
 };
