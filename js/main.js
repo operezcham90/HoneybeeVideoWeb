@@ -30,8 +30,8 @@ var honeybee = {
         var mean2 = 0;
         for (var x = 0; x < nx; x++) {
             for (var y = 0; y < ny; y++) {
-                mean1 += util.pixel(util.relation[i1.space].canvas, u1 + x, v1 + y);
-                mean2 += util.pixel(util.relation[i2.space].canvas, u2 + x, v2 + y);
+                mean1 += util.pixel(i1.space, u1 + x, v1 + y);
+                mean2 += util.pixel(i2.space, u2 + x, v2 + y);
             }
         }
         mean1 /= nx * ny;
@@ -42,8 +42,8 @@ var honeybee = {
         var sigma2 = 0;
         for (var x = 0; x < nx; x++) {
             for (var y = 0; y < ny; y++) {
-                var err1 = util.pixel(util.relation[i1.space].canvas, u1 + x, v1 + y) - mean1;
-                var err2 = util.pixel(util.relation[i2.space].canvas, u2 + x, v2 + y) - mean2;
+                var err1 = util.pixel(i1.space, u1 + x, v1 + y) - mean1;
+                var err2 = util.pixel(i2.space, u2 + x, v2 + y) - mean2;
                 cross += err1 * err2;
                 sigma1 += err1 * err1;
                 sigma2 += err2 * err2;
@@ -78,18 +78,20 @@ var util = {
         // print text
         $('#output').append(text + '\n');
     },
-    pixel: function (canvas, x, y) {
+    pixel: function (space, x, y) {
         // get pixel from canvas
-        return (canvas.context.getImageData(x, y, 1, 1).data[0] +
-                canvas.context.getImageData(x, y, 1, 1).data[1] +
-                canvas.context.getImageData(x, y, 1, 1).data[2]) / 3;
+        return (util.relation[space].canvas.getContext('2d')
+                .getImageData(x, y, 1, 1).data[0] +
+                util.relation[space].canvas.getContext('2d')
+                .getImageData(x, y, 1, 1).data[1] +
+                util.relation[space].canvas.getContext('2d')
+                .getImageData(x, y, 1, 1).data[2]) / 3;
     },
     load: function () {
         // load frames
         var i = this.id.split('-')[1];
         util.relation[i].canvas = document.createElement('canvas');
-        var context = util.relation[i].canvas.getContext('2d');
-        context.drawImage(util.relation[i].image, 0, 0);
+        util.relation[i].canvas.getContext('2d').drawImage(util.relation[i].image, 0, 0);
         loaded++;
         if (loaded === util.relation.length) {
             util.output('All frames loaded');
