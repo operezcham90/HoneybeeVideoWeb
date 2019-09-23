@@ -31,7 +31,7 @@ var util = {
         context.drawImage(util.relation[i].image, 0, 0);
         loaded++;
         if (loaded === util.relation.length) {
-            output('All frames loaded');
+            util.output('All frames loaded');
         }
     },
     read: function () {
