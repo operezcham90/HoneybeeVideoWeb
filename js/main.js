@@ -68,7 +68,7 @@ var util = {
             image: null
         },
         {
-            file: 'img/00000002.jpg',
+            file: 'img/00000001.jpg',
             label: 't',
             canvas: null,
             image: null
@@ -91,7 +91,8 @@ var util = {
         // load frames
         var i = this.id.split('-')[1];
         util.relation[i].canvas = document.createElement('canvas');
-        util.relation[i].canvas.getContext('2d').drawImage(util.relation[i].image, 0, 0);
+        util.relation[i].canvas.getContext('2d')
+                .drawImage(util.relation[i].image, 0, 0);
         loaded++;
         if (loaded === util.relation.length) {
             util.output('All frames loaded');
