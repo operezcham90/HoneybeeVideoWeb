@@ -105,7 +105,7 @@ var hb = {
     },
     process: function () {
         hb.output('Process started');
-        for (var a = 0; a < 64; a++) {
+        for (var a = 0; a < 3; a++) {
             setTimeout(function () {
                 var i1 = hb.individual(0, [139.52, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
                 var i2 = hb.individual(1, [139.52 + a, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
