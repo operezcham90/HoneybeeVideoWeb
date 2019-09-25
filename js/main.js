@@ -37,15 +37,6 @@ var hb = {
         // print text
         $('#output').append(text + '\n');
     },
-    pixel: function (spc, x, y) {
-        // get pixel from canvas
-        return (hb.spaces[spc].canvas.getContext('2d')
-                .getImageData(x, y, 1, 1).data[0] +
-                hb.spaces[spc].canvas.getContext('2d')
-                .getImageData(x, y, 1, 1).data[1] +
-                hb.spaces[spc].canvas.getContext('2d')
-                .getImageData(x, y, 1, 1).data[2]) / 3;
-    },
     individual: function (spc, dimensions) {
         return {
             dim: dimensions,
@@ -55,12 +46,12 @@ var hb = {
     },
     ncc: function (i1, i2) {
         // starting points from individuals
-        var u1 = i1.dim[0] + i1.dim[2];
-        var v1 = i1.dim[1] + i1.dim[3];
-        var u2 = i2.dim[0] + i2.dim[2];
-        var v2 = i2.dim[1] + i2.dim[3];
-        var nx = i1.dim[4];
-        var ny = i1.dim[5];
+        var u1 = Math.floor(i1.dim[0] + i1.dim[2]);
+        var v1 = Math.floor(i1.dim[1] + i1.dim[3]);
+        var u2 = Math.floor(i2.dim[0] + i2.dim[2]);
+        var v2 = Math.floor(i2.dim[1] + i2.dim[3]);
+        var nx = Math.floor(i1.dim[4]);
+        var ny = Math.floor(i1.dim[5]);
         var mx = hb.spaces[i1.spc].image.naturalWidth;
         var my = hb.spaces[i1.spc].image.naturalHeight;
         // negative values
@@ -72,17 +63,18 @@ var hb = {
                 u1 < 0 || u2 < 0 || v1 < 0 || v2 < 0) {
             return -100;
         }
-        // get pixel data
+        // get pixel data (r,g,b,a)
         var p1 = hb.spaces[i1.spc].canvas.getContext('2d')
-                .getImageData(u1, v1, nx, ny);
+                .getImageData(u1, v1, nx, ny).data;
         var p2 = hb.spaces[i2.spc].canvas.getContext('2d')
-                .getImageData(u2, v2, nx, ny);
+                .getImageData(u2, v2, nx, ny).data;
         // get mean
         var mean1 = 0;
         var mean2 = 0;
         for (var i = 0; i < nx * ny; i++) {
-            mean1 += p1[i];
-            mean2 += p2[i];
+            var b = i * 4;
+            mean1 += (p1[b] + p1[b + 1] + p1[b + 2]) / 3;
+            mean2 += (p2[b] + p2[b + 1] + p2[b + 2]) / 3;
         }
         mean1 /= nx * ny;
         mean2 /= nx * ny;
@@ -91,8 +83,9 @@ var hb = {
         var sum1 = 0;
         var sum2 = 0;
         for (var i = 0; i < nx * ny; i++) {
-            var err1 = p1[i] - mean1;
-            var err2 = p2[i] - mean2;
+            var b = i * 4;
+            var err1 = ((p1[b] + p1[b + 1] + p1[b + 2]) / 3) - mean1;
+            var err2 = ((p2[b] + p2[b + 1] + p2[b + 2]) / 3) - mean2;
             cross += err1 * err2;
             sum1 += err1 * err1;
             sum2 += err2 * err2;
