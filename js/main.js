@@ -72,14 +72,17 @@ var hb = {
                 u1 < 0 || u2 < 0 || v1 < 0 || v2 < 0) {
             return -100;
         }
+        // get pixel data
+        var p1 = hb.spaces[i1.spc].canvas.getContext('2d')
+                .getImageData(u1, v1, nx, ny);
+        var p2 = hb.spaces[i2.spc].canvas.getContext('2d')
+                .getImageData(u2, v2, nx, ny);
         // get mean
         var mean1 = 0;
         var mean2 = 0;
-        for (var x = 0; x < nx; x++) {
-            for (var y = 0; y < ny; y++) {
-                mean1 += hb.pixel(i1.spc, u1 + x, v1 + y);
-                mean2 += hb.pixel(i2.spc, u2 + x, v2 + y);
-            }
+        for (var i = 0; i < nx * ny; i++) {
+            mean1 += p1[i];
+            mean2 += p2[i];
         }
         mean1 /= nx * ny;
         mean2 /= nx * ny;
@@ -87,14 +90,12 @@ var hb = {
         var cross = 0;
         var sum1 = 0;
         var sum2 = 0;
-        for (var x = 0; x < nx; x++) {
-            for (var y = 0; y < ny; y++) {
-                var err1 = hb.pixel(i1.spc, u1 + x, v1 + y) - mean1;
-                var err2 = hb.pixel(i2.spc, u2 + x, v2 + y) - mean2;
-                cross += err1 * err2;
-                sum1 += err1 * err1;
-                sum2 += err2 * err2;
-            }
+        for (var i = 0; i < nx * ny; i++) {
+            var err1 = p1[i] - mean1;
+            var err2 = p2[i] - mean2;
+            cross += err1 * err2;
+            sum1 += err1 * err1;
+            sum2 += err2 * err2;
         }
         // only real numbers
         if (sum1 < 0 || sum2 < 0 || sum1 * sum2 <= 0) {
