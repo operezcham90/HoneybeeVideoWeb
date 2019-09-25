@@ -1,9 +1,63 @@
+'use strict'
 // honeybee tracker
 var hb = {
     loaded: 0,
     start: new Date(),
     end: new Date(),
+    ui: 0,
+    vi: 0,
+    hi: 0,
+    wi: 0,
+    mu: [],
+    limits: [
+        {min: 0, max: 0},
+        {min: 0, max: 0},
+        {min: 0, max: 0},
+        {min: 0, max: 0},
+        {min: 0, max: 0},
+        {min: 0, max: 0}
+    ],
     spaces: [],
+    random: function (limits) {
+        return (Math.random() * (limits.max - limits.min)) + limits.min;
+    },
+    population: function (pop, size) {
+        var arr;
+        if (pop === 'mu') {
+            arr = hb.mu;
+            // limits of the search space
+            hb.limits[0].min = 0;
+            hb.limits[0].max = hb.spaces[1].image.naturalWidth - hb.wi;
+            hb.limits[1].min = 0;
+            hb.limits[1].max = hb.spaces[1].image.naturalHeight - hb.hi;
+            hb.limits[2].min = 0;
+            hb.limits[2].max = hb.wi;
+            hb.limits[3].min = 0;
+            hb.limits[3].max = hb.hi;
+            hb.limits[4].min = 0;
+            hb.limits[4].max = hb.wi;
+            hb.limits[5].min = 0;
+            hb.limits[5].max = hb.hi;
+        }
+        // empty population
+        arr = [];
+        // fill population
+        for (var i = 0; i < size; i++) {
+            var dim = [0, 0, 0, 0, 0, 0];
+            // independent random components
+            for (var j = 0; j < 4; j++) {
+                dim[j] = hb.random(hb.limits[j]);
+            }
+            // dependent random components
+            for (var j = 4; j < 6; j++) {
+                dim[j] = hb.random({
+                    min: hb.limits[j].min,
+                    max: hb.limits[j].max - dim[j - 2]
+                });
+            }
+            arr.push(hb.individual(1, dim));
+        }
+    },
     space: function (file) {
         // create a search space
         var i = new Image();
@@ -103,13 +157,22 @@ var hb = {
         // start timing
         hb.start = new Date();
 
-        var i1 = hb.individual(0, [139.52, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
+        // initial position of the object
+        hb.ui = 139.52;
+        hb.vi = 58.571;
+        hb.wi = 226.67 - 139.52;
+        hb.hi = 148.57 - 58.571;
+
+        // exploration
+        hb.population('mu', 100);
+
+        /*var i1 = hb.individual(0, [139.52, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
         var i2 = hb.individual(1, [139.52 + 10, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
-        i1.fit = hb.ncc(i1, i2);
+        i1.fit = hb.ncc(i1, i2);*/
 
         // end timing
         hb.end = new Date();
-        hb.output('Similarity: ' + i1.fit + ' Time: ' + (hb.end - hb.start));
+        //hb.output('Similarity: ' + i1.fit + ' Time: ' + (hb.end - hb.start));
     }
 };
 // begin
