@@ -11,6 +11,11 @@ var hb = {
     mu: 0,
     lambda: 1,
     mulambda: 2,
+    gens: 0,
+    exp: {
+        mu: 0,
+        lambda: 0
+    },
     populations: [[], [], []],
     limits: [
         {min: 0, max: 0},
@@ -180,20 +185,25 @@ var hb = {
     process: function () {
         // start timing
         hb.start = new Date();
-
+        // configuration
+        hb.gens = 3;
+        hb.exp.mu = 100;
         // initial known position of the object
         hb.ui = 139.52;
         hb.vi = 58.571;
         hb.wi = 226.67 - 139.52;
         hb.hi = 148.57 - 58.571;
-
         // exploration
-        hb.population(hb.mu, 100);
+        hb.population(hb.mu, hb.exp.mu);
         hb.evaluate(hb.mu);
-
+        for (var i = 0; i < hb.gens; i++) {
+            hb.offspring();
+            hb.evaluate(hb.lambda);
+            hb.merge();
+        }
         // end timing
         hb.end = new Date();
-        hb.output('Time: ' + (hb.end - hb.start));
+        hb.output('Time: ' + (hb.end - hb.start) + ' ms');
     }
 };
 // begin
