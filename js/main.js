@@ -14,7 +14,10 @@ var hb = {
     gens: 0,
     exp: {
         mu: 0,
-        lambda: 0
+        lambda: 0,
+        cross: 0,
+        mut: 0,
+        rand: 0
     },
     populations: [[], [], []],
     limits: [
@@ -29,24 +32,22 @@ var hb = {
     random: function (limits) {
         return (Math.random() * (limits.max - limits.min)) + limits.min;
     },
-    population: function (pop, size) {
-        if (pop === hb.mu) {
-            // limits of the search space
-            hb.limits[0].min = 0;
-            hb.limits[0].max = hb.spaces[1].image.naturalWidth - hb.wi - 1;
-            hb.limits[1].min = 0;
-            hb.limits[1].max = hb.spaces[1].image.naturalHeight - hb.hi - 1;
-            hb.limits[2].min = 0;
-            hb.limits[2].max = hb.wi - 1;
-            hb.limits[3].min = 0;
-            hb.limits[3].max = hb.hi - 1;
-            hb.limits[4].min = 0;
-            hb.limits[4].max = hb.wi - 1;
-            hb.limits[5].min = 0;
-            hb.limits[5].max = hb.hi - 1;
-        }
+    parents: function (size) {
+        // limits of the search space
+        hb.limits[0].min = 0;
+        hb.limits[0].max = hb.spaces[1].image.naturalWidth - hb.wi - 1;
+        hb.limits[1].min = 0;
+        hb.limits[1].max = hb.spaces[1].image.naturalHeight - hb.hi - 1;
+        hb.limits[2].min = 0;
+        hb.limits[2].max = hb.wi - 1;
+        hb.limits[3].min = 0;
+        hb.limits[3].max = hb.hi - 1;
+        hb.limits[4].min = 0;
+        hb.limits[4].max = hb.wi - 1;
+        hb.limits[5].min = 0;
+        hb.limits[5].max = hb.hi - 1;
         // empty population
-        hb.populations[pop] = [];
+        hb.populations[hb.mu] = [];
         // fill population
         for (var i = 0; i < size; i++) {
             var dim = [0, 0, 0, 0, 0, 0];
@@ -61,8 +62,17 @@ var hb = {
                     max: hb.limits[j].max - dim[j - 2]
                 });
             }
-            hb.populations[pop].push(hb.individual(1, dim));
+            hb.populations[hb.mu].push(hb.individual(1, dim));
         }
+    },
+    offspring: function (size, cross, mut, rand) {
+        // set number of individuals
+        var num_cross = size * cross;
+        var num_mut = size * mut;
+        var num_rand = size * rand;
+    },
+    merge: function () {
+
     },
     evaluate: function (pop) {
         for (var i = 0; i < hb.populations[pop].length; i++) {
@@ -188,16 +198,20 @@ var hb = {
         // configuration
         hb.gens = 3;
         hb.exp.mu = 100;
+        hb.exp.lambda = hb.exp.mu * 2;
+        hb.exp.cross = 0.1;
+        hb.exp.mut = 0.6;
+        hb.exp.rand = 0.3;
         // initial known position of the object
         hb.ui = 139.52;
         hb.vi = 58.571;
         hb.wi = 226.67 - 139.52;
         hb.hi = 148.57 - 58.571;
         // exploration
-        hb.population(hb.mu, hb.exp.mu);
+        hb.parents(hb.exp.mu);
         hb.evaluate(hb.mu);
         for (var i = 0; i < hb.gens; i++) {
-            hb.offspring();
+            hb.offspring(hb.exp.lambda, hb.exp.cross, hb.exp.mut, hb.exp.rand);
             hb.evaluate(hb.lambda);
             hb.merge();
         }
