@@ -56,7 +56,23 @@ var hb = {
                     max: hb.limits[j].max - dim[j - 2]
                 });
             }
-            hb.populations[pop].push(hb.individual(2, dim));
+            hb.populations[pop].push(hb.individual(1, dim));
+        }
+    },
+    evaluate: function (pop) {
+        for (var i = 0; i < hb.populations[pop].length; i++) {
+            // known position
+            var i2 = hb.individual(0, [
+                hb.ui,
+                hb.vi,
+                hb.populations[pop][i].dim[2],
+                hb.populations[pop][i].dim[3],
+                hb.populations[pop][i].dim[4],
+                hb.populations[pop][i].dim[5]
+            ]);
+            // comparison
+            hb.populations[pop][i].fit
+                    = hb.ncc(hb.populations[pop][i], i2);
         }
     },
     space: function (file) {
@@ -68,7 +84,8 @@ var hb = {
         hb.spaces.push({
             file: file,
             canvas: document.createElement('canvas'),
-            image: i
+            image: i,
+            gray: []
         });
     },
     load: function () {
@@ -76,6 +93,15 @@ var hb = {
         var i = this.id.split('-')[1];
         hb.spaces[i].canvas.getContext('2d')
                 .drawImage(hb.spaces[i].image, 0, 0);
+        var data = hb.spaces[i].canvas
+                .getContext('2d')
+                .getImageData(0, 0,
+                        hb.spaces[i].image.naturalWidth,
+                        hb.spaces[i].image.naturalHeight).data;
+        for (var j = 0; j < (data.length / 4); j++) {
+            var b = j * 4;
+            hb.spaces[i].gray[j] = (data[b] + data[b + 1] + data[b + 2]) / 3;
+        }
         hb.loaded++;
         if (hb.loaded === 2) {
             hb.output('All frames loaded');
@@ -120,18 +146,15 @@ var hb = {
                 u1 < 0 || u2 < 0 || v1 < 0 || v2 < 0) {
             return -100;
         }
-        // get pixel data (r,g,b,a)
-        var p1 = hb.spaces[i1.spc].canvas.getContext('2d')
-                .getImageData(u1, v1, nx, ny).data;
-        var p2 = hb.spaces[i2.spc].canvas.getContext('2d')
-                .getImageData(u2, v2, nx, ny).data;
+        // get pixel data
+        var p1 = hb.spaces[i1.spc].gray;
+        var p2 = hb.spaces[i2.spc].gray;
         // get mean
         var mean1 = 0;
         var mean2 = 0;
         for (var i = 0; i < nx * ny; i++) {
-            var b = i * 4;
-            mean1 += (p1[b] + p1[b + 1] + p1[b + 2]) / 3;
-            mean2 += (p2[b] + p2[b + 1] + p2[b + 2]) / 3;
+            mean1 += p1[i];
+            mean2 += p2[i];
         }
         mean1 /= nx * ny;
         mean2 /= nx * ny;
@@ -141,8 +164,8 @@ var hb = {
         var sum2 = 0;
         for (var i = 0; i < nx * ny; i++) {
             var b = i * 4;
-            var err1 = ((p1[b] + p1[b + 1] + p1[b + 2]) / 3) - mean1;
-            var err2 = ((p2[b] + p2[b + 1] + p2[b + 2]) / 3) - mean2;
+            var err1 = p1[i] - mean1;
+            var err2 = p2[i] - mean2;
             cross += err1 * err2;
             sum1 += err1 * err1;
             sum2 += err2 * err2;
@@ -158,7 +181,7 @@ var hb = {
         // start timing
         hb.start = new Date();
 
-        // initial position of the object
+        // initial known position of the object
         hb.ui = 139.52;
         hb.vi = 58.571;
         hb.wi = 226.67 - 139.52;
@@ -166,10 +189,7 @@ var hb = {
 
         // exploration
         hb.population(hb.mu, 100);
-
-        /*var i1 = hb.individual(0, [139.52, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
-         var i2 = hb.individual(1, [139.52 + 10, 58.571, 0, 0, 226.67 - 139.52, 148.57 - 58.571]);
-         i1.fit = hb.ncc(i1, i2);*/
+        hb.evaluate(hb.mu);
 
         // end timing
         hb.end = new Date();
