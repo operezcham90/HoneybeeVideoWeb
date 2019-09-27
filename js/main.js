@@ -29,6 +29,46 @@ var hb = {
         {min: 0, max: 0}
     ],
     spaces: [],
+    tour: {
+        pos: 0,
+        list: [],
+        shuffle: function () {
+            hb.tour.list = [];
+            for (var i = 0; i < hb.populations[hb.mu].length; i++) {
+                hb.tour.list.push(i);
+            }
+            for (var i = 0; i < hb.populations[hb.mu].length; i++) {
+                var r1 = Math.ceil(Math.random() *
+                        (hb.populations[hb.mu].length - 1));
+                var r2 = Math.ceil(Math.random() *
+                        (hb.populations[hb.mu].length - 1));
+                var t = hb.tour.list[r1];
+                hb.tour.list[r1] = hb.tour.list[r2];
+                hb.tour.list[r2] = t;
+            }
+        },
+        preselect: function () {
+            hb.tour.shuffle();
+            hb.tour.pos = 0;
+        },
+        select: function () {
+            // emergency reset
+            if ((hb.populations[hb.mu].length - hb.tour.pos) < 2) {
+                hb.tour.preselect();
+            }
+            // selections
+            var winner = hb.tour.list[hb.tour.pos];
+            var pick = hb.tour.list[hb.tour.pos + 1];
+            // select the best
+            if (hb.populations[hb.mu][pick].fit >
+                    hb.populations[hb.mu][winner].fit) {
+                winner = pick;
+            }
+            // update position
+            hb.tour.pos += 2;
+            return winner;
+        }
+    },
     random: function (limits) {
         return (Math.random() * (limits.max - limits.min)) + limits.min;
     },
@@ -65,11 +105,41 @@ var hb = {
             hb.populations[hb.mu].push(hb.individual(1, dim));
         }
     },
+    mutation: function (i) {
+        
+    },
     offspring: function (size, cross, mut, rand) {
         // set number of individuals
-        var num_cross = size * cross;
-        var num_mut = size * mut;
-        var num_rand = size * rand;
+        var nc = size * cross;
+        var nm = size * mut;
+        var nr = size * rand;
+        // verify number of individuals
+        if (nc % 2 !== 0) {
+            nc++;
+        }
+        if (nc + nm + nr > size) {
+            nc -= (nc + nm + nr) - size;
+        }
+        if (nc + nm + nr < size) {
+            nm += size - (nc + nm + nr);
+        }
+        // empty population
+        hb.populations[hb.lambda] = [];
+        // prepare tournament
+        hb.tour.preselect();
+        // mutation
+        for (var i = 0; i < nm; i++) {
+            // selection
+            var m1 = hb.tour.select();
+            // copy individual
+            var dt = [];
+            for (var j = 0; j < hb.populations[hb.mu][m1].dim.length; j++) {
+                dt.push(hb.populations[hb.mu][m1].dim[j]);
+            }
+            hb.populations[hb.lambda].push(hb.individual(1, dt));
+            // mutate
+            hb.mutation(hb.populations[hb.lambda].length - 1);
+        }
     },
     merge: function () {
 
