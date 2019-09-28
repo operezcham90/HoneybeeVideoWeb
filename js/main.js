@@ -121,11 +121,11 @@ var hb = {
             if (u < 0.5) {
                 aa = 2.0 * u + (1.0 - 2.0 * u) *
                         Math.pow((1 + delta_l), (hb.eta.m + 1.0));
-                delta = pow(aa, (1.0 / (hb.eta.m + 1.0))) - 1.0;
+                delta = Math.pow(aa, (1.0 / (hb.eta.m + 1.0))) - 1.0;
             } else {
                 aa = 2.0 * (1 - u) + 2.0 * (u - 0.5) *
                         Math.pow((1 - delta_u), (hb.eta.m + 1.0));
-                delta = 1.0 - pow(aa, (1.0 / (hb.eta.m + 1.0)));
+                delta = 1.0 - Math.pow(aa, (1.0 / (hb.eta.m + 1.0)));
             }
         }
         // correction
@@ -141,7 +141,7 @@ var hb = {
         // for each site
         for (var s = 0; s < hb.populations[hb.lambda][i].dim.length; s++) {
             // get value
-            var x = hb.populations[hb.lambda].dim[s];
+            var x = hb.populations[hb.lambda][i].dim[s];
             // get distance min
             var d1 = hb.limits[s].min - x;
             var delta_l = d1 / (hb.limits[s].min - hb.limits[s].max);
