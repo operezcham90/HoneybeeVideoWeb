@@ -109,68 +109,59 @@ var hb = {
             hb.populations[hb.mu].push(hb.individual(1, dim));
         }
     },
-    delta: function (u, delta_l, delta_u) {
-        var delta = 0;
+    delta: function (u, l, h) {
+        var d = 0;
         var aa = 0;
-        // weird value
-        if (u >= 1.0 - 1.0e-9) {
-            delta = delta_u;
-        } else if (u <= 0.0 + 1.0e-9) {
-            delta = delta_l;
+        if (u < 0.5) {
+            aa = 2 * u + (1 - 2 * u) *
+                    Math.pow((1 + l), (hb.eta.m + 1));
+            d = Math.pow(aa, (1 / (hb.eta.m + 1))) - 1;
         } else {
-            if (u < 0.5) {
-                aa = 2.0 * u + (1.0 - 2.0 * u) *
-                        Math.pow((1 + delta_l), (hb.eta.m + 1.0));
-                delta = Math.pow(aa, (1.0 / (hb.eta.m + 1.0))) - 1.0;
-            } else {
-                aa = 2.0 * (1 - u) + 2.0 * (u - 0.5) *
-                        Math.pow((1 - delta_u), (hb.eta.m + 1.0));
-                delta = 1.0 - Math.pow(aa, (1.0 / (hb.eta.m + 1.0)));
-            }
+            aa = 2 * (1 - u) + 2 * (u - 0.5) *
+                    Math.pow((1 - h), (hb.eta.m + 1));
+            d = 1 - Math.pow(aa, (1 / (hb.eta.m + 1)));
         }
         // correction
-        if (delta < -1.0) {
-            delta = -1.0;
+        if (d < -1) {
+            d = -1;
         }
-        if (delta > 1.0) {
-            delta = 1.0;
+        if (d > 1) {
+            d = 1;
         }
-        return delta;
+        return d;
     },
     mutation: function (i) {
         // for each site
         for (var s = 0; s < hb.populations[hb.lambda][i].dim.length; s++) {
             // get value
             var x = hb.populations[hb.lambda][i].dim[s];
+            var r = hb.limits[s].max - hb.limits[s].min;
             // get distance min
-            var d1 = hb.limits[s].min - x;
-            var delta_l = d1 / (hb.limits[s].min - hb.limits[s].max);
-            if (delta_l < -1.0) {
-                delta_l = -1.0;
+            var l = (hb.limits[s].min - x) / r;
+            if (l < -1.0) {
+                l = -1.0;
             }
             // get distance max
-            d1 = hb.limits[s].max - x;
-            var delta_u = d1 / (hb.limits[s].min - hb.limits[s].max);
-            if (delta_u > 1.0) {
-                delta_u = 1.0;
+            var h = (hb.limits[s].max - x) / r;
+            if (h > 1.0) {
+                h = 1.0;
             }
             // fix delta
-            if (-1.0 * delta_l < delta_u) {
-                delta_u = -1.0 * delta_l;
+            if (-1 * l < h) {
+                h = -1 * l;
             } else {
-                delta_l = -1.0 * delta_u;
+                l = -1 * h;
             }
             var u = Math.random();
             // actual delta
-            var delta = hb.delta(u, delta_l, delta_u) *
-                    (hb.limits[s].max - hb.limits[s].min);
-            hb.populations[hb.lambda].dim[s] += delta;
+            var d = hb.delta(u, l, h) * r;
+            hb.populations[hb.lambda][i].dim[s] += d;
             // limits
-            if (hb.populations[hb.lambda].dim[s] < hb.limits[s].min) {
-                hb.populations[hb.lambda].dim[s] = hb.limits[s].min;
+            if (hb.populations[hb.lambda][i].dim[s] < hb.limits[s].min) {
+                hb.populations[hb.lambda][i].dim[s] = hb.limits[s].min;
             }
-            if (hb.populations[hb.lambda].dim[s] > hb.limits[s].max) {
-                hb.populations[hb.lambda].dim[s] = hb.limits[s].max;
+            if (hb.populations[hb.lambda][i].dim[s] > hb.limits[s].max) {
+                hb.populations[hb.lambda][i].dim[s] = hb.limits[s].max;
             }
         }
     },
@@ -208,7 +199,7 @@ var hb = {
         }
     },
     merge: function () {
-
+        return 0;
     },
     evaluate: function (pop) {
         for (var i = 0; i < hb.populations[pop].length; i++) {
@@ -341,10 +332,10 @@ var hb = {
         hb.eta.m = 25;
         hb.eta.c = 2;
         // initial known position of the object
-        hb.ui = 139.52;
-        hb.vi = 58.571;
-        hb.wi = 226.67 - 139.52;
-        hb.hi = 148.57 - 58.571;
+        hb.ui = Math.ceil(139.52);
+        hb.vi = Math.ceil(58.571);
+        hb.wi = Math.ceil(226.67 - 139.52);
+        hb.hi = Math.ceil(148.57 - 58.571);
         // exploration
         hb.parents(hb.exp.mu);
         hb.evaluate(hb.mu);
