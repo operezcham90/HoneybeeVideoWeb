@@ -12,6 +12,10 @@ var hb = {
     lambda: 1,
     mulambda: 2,
     gens: 0,
+    eta: {
+        m: 0,
+        c: 0
+    },
     exp: {
         mu: 0,
         lambda: 0,
@@ -105,8 +109,70 @@ var hb = {
             hb.populations[hb.mu].push(hb.individual(1, dim));
         }
     },
+    delta: function (u, delta_l, delta_u) {
+        var delta = 0;
+        var aa = 0;
+        // weird value
+        if (u >= 1.0 - 1.0e-9) {
+            delta = delta_u;
+        } else if (u <= 0.0 + 1.0e-9) {
+            delta = delta_l;
+        } else {
+            if (u < 0.5) {
+                aa = 2.0 * u + (1.0 - 2.0 * u) *
+                        Math.pow((1 + delta_l), (hb.eta.m + 1.0));
+                delta = pow(aa, (1.0 / (hb.eta.m + 1.0))) - 1.0;
+            } else {
+                aa = 2.0 * (1 - u) + 2.0 * (u - 0.5) *
+                        Math.pow((1 - delta_u), (hb.eta.m + 1.0));
+                delta = 1.0 - pow(aa, (1.0 / (hb.eta.m + 1.0)));
+            }
+        }
+        // correction
+        if (delta < -1.0) {
+            delta = -1.0;
+        }
+        if (delta > 1.0) {
+            delta = 1.0;
+        }
+        return delta;
+    },
     mutation: function (i) {
-        
+        // for each site
+        for (var s = 0; s < hb.populations[hb.lambda][i].dim.length; s++) {
+            // get value
+            var x = hb.populations[hb.lambda].dim[s];
+            // get distance min
+            var d1 = hb.limits[s].min - x;
+            var delta_l = d1 / (hb.limits[s].min - hb.limits[s].max);
+            if (delta_l < -1.0) {
+                delta_l = -1.0;
+            }
+            // get distance max
+            d1 = hb.limits[s].max - x;
+            var delta_u = d1 / (hb.limits[s].min - hb.limits[s].max);
+            if (delta_u > 1.0) {
+                delta_u = 1.0;
+            }
+            // fix delta
+            if (-1.0 * delta_l < delta_u) {
+                delta_u = -1.0 * delta_l;
+            } else {
+                delta_l = -1.0 * delta_u;
+            }
+            var u = Math.random();
+            // actual delta
+            var delta = hb.delta(u, delta_l, delta_u) *
+                    (hb.limits[s].min - hb.limits[s].max);
+            hb.populations[hb.lambda].dim[s] += delta;
+            // limits
+            if (hb.populations[hb.lambda].dim[s] < hb.limits[s].min) {
+                hb.populations[hb.lambda].dim[s] = hb.limits[s].min;
+            }
+            if (hb.populations[hb.lambda].dim[s] > hb.limits[s].max) {
+                hb.populations[hb.lambda].dim[s] = hb.limits[s].max;
+            }
+        }
     },
     offspring: function (size, cross, mut, rand) {
         // set number of individuals
@@ -272,6 +338,8 @@ var hb = {
         hb.exp.cross = 0.1;
         hb.exp.mut = 0.6;
         hb.exp.rand = 0.3;
+        hb.eta.m = 25;
+        hb.eta.c = 2;
         // initial known position of the object
         hb.ui = 139.52;
         hb.vi = 58.571;
