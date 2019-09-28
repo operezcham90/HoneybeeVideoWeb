@@ -163,7 +163,7 @@ var hb = {
             var u = Math.random();
             // actual delta
             var delta = hb.delta(u, delta_l, delta_u) *
-                    (hb.limits[s].min - hb.limits[s].max);
+                    (hb.limits[s].max - hb.limits[s].min);
             hb.populations[hb.lambda].dim[s] += delta;
             // limits
             if (hb.populations[hb.lambda].dim[s] < hb.limits[s].min) {
