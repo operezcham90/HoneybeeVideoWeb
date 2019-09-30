@@ -186,13 +186,85 @@ var hb = {
     random: function (limits) {
         return (Math.random() * (limits.max - limits.min)) + limits.min;
     },
+    individual: function (spc, dimensions) {
+        return {
+            dim: dimensions,
+            spc: spc,
+            fit: 0
+        };
+    },
+    ncc: function (i1, i2) {
+        // starting points from individuals
+        var u1 = Math.floor(i1.dim[0] + i1.dim[2]);
+        var v1 = Math.floor(i1.dim[1] + i1.dim[3]);
+        var u2 = Math.floor(i2.dim[0] + i2.dim[2]);
+        var v2 = Math.floor(i2.dim[1] + i2.dim[3]);
+        var nx = Math.floor(i1.dim[4]);
+        var ny = Math.floor(i1.dim[5]);
+        var mx = hb.spaces.arr[i1.spc].image.naturalWidth;
+        var my = hb.spaces.arr[i1.spc].image.naturalHeight;
+        // negative values
+        if (nx < 0 || ny < 0 || mx < 0 || my < 0) {
+            return -100;
+        }
+        // window not inside frame
+        if (u1 + nx >= mx || u2 + nx >= mx || v1 + ny >= my || v2 + ny >= my ||
+                u1 < 0 || u2 < 0 || v1 < 0 || v2 < 0) {
+            return -100;
+        }
+        // get pixel data
+        var p1 = hb.spaces.arr[i1.spc].gray;
+        var p2 = hb.spaces.arr[i2.spc].gray;
+        // get mean
+        var mean1 = 0;
+        var mean2 = 0;
+        for (var i = 0; i < nx * ny; i++) {
+            mean1 += p1[i];
+            mean2 += p2[i];
+        }
+        mean1 /= nx * ny;
+        mean2 /= nx * ny;
+        // get cross correlation and sums of squared errors
+        var cross = 0;
+        var sum1 = 0;
+        var sum2 = 0;
+        for (var i = 0; i < nx * ny; i++) {
+            var b = i * 4;
+            var err1 = p1[i] - mean1;
+            var err2 = p2[i] - mean2;
+            cross += err1 * err2;
+            sum1 += err1 * err1;
+            sum2 += err2 * err2;
+        }
+        // only real numbers
+        if (sum1 < 0 || sum2 < 0 || sum1 * sum2 <= 0) {
+            return -100;
+        }
+        // result
+        return cross / Math.sqrt(sum1 * sum2);
+    },
+    evaluate: function (pop) {
+        for (var i = 0; i < hb.pop.arr[pop].length; i++) {
+            // known position
+            var i2 = hb.individual(0, [
+                hb.ui,
+                hb.vi,
+                hb.pop.arr[pop][i].dim[2],
+                hb.pop.arr[pop][i].dim[3],
+                hb.pop.arr[pop][i].dim[4],
+                hb.pop.arr[pop][i].dim[5]
+            ]);
+            // comparison
+            hb.pop.arr[pop][i].fit = hb.ncc(hb.pop.arr[pop][i], i2);
+        }
+    },
     main: function () {
         // start timing
         hb.time.start();
         // exploration
         hb.parents(hb.ini.ex.mu);
-        /*hb.evaluate(hb.pop.mu);
-         for (var i = 0; i < hb.ini.gens; i++) {
+        hb.evaluate(hb.pop.mu);
+        /* for (var i = 0; i < hb.ini.gens; i++) {
          hb.offspring(hb.ini.ex.lambda, hb.ini.ex.cross,
          hb.ini.ex.mut, hb.ini.ex.rand);
          hb.evaluate(hb.pop.lambda);
