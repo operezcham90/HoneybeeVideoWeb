@@ -201,8 +201,8 @@ var hb = {
         var v2 = Math.floor(i2.dim[1] + i2.dim[3]);
         var nx = Math.floor(i1.dim[4]);
         var ny = Math.floor(i1.dim[5]);
-        var mx = hb.spaces.arr[i1.spc].image.naturalWidth;
-        var my = hb.spaces.arr[i1.spc].image.naturalHeight;
+        var mx = hb.space.arr[i1.spc].img.naturalWidth;
+        var my = hb.space.arr[i1.spc].img.naturalHeight;
         // negative values
         if (nx < 0 || ny < 0 || mx < 0 || my < 0) {
             return -100;
@@ -213,8 +213,8 @@ var hb = {
             return -100;
         }
         // get pixel data
-        var p1 = hb.spaces.arr[i1.spc].gray;
-        var p2 = hb.spaces.arr[i2.spc].gray;
+        var p1 = hb.space.arr[i1.spc].gr;
+        var p2 = hb.space.arr[i2.spc].gr;
         // get mean
         var mean1 = 0;
         var mean2 = 0;
@@ -237,7 +237,7 @@ var hb = {
             sum2 += err2 * err2;
         }
         // only real numbers
-        if (sum1 < 0 || sum2 < 0 || sum1 * sum2 <= 0) {
+        if (sum1 * sum2 <= 0) {
             return -100;
         }
         // result
@@ -258,18 +258,257 @@ var hb = {
             hb.pop.arr[pop][i].fit = hb.ncc(hb.pop.arr[pop][i], i2);
         }
     },
+    tour: {
+        pos: 0,
+        list: [],
+        shuffle: function () {
+            hb.tour.list = [];
+            for (var i = 0; i < hb.pop.arr[hb.pop.mu].length; i++) {
+                hb.tour.list.push(i);
+            }
+            for (var i = 0; i < hb.pop.arr[hb.pop.mu].length; i++) {
+                var r1 = Math.ceil(Math.random() *
+                        (hb.pop.arr[hb.pop.mu].length - 1));
+                var r2 = Math.ceil(Math.random() *
+                        (hb.pop.arr[hb.pop.mu].length - 1));
+                var t = hb.tour.list[r1];
+                hb.tour.list[r1] = hb.tour.list[r2];
+                hb.tour.list[r2] = t;
+            }
+        },
+        preselect: function () {
+            hb.tour.shuffle();
+            hb.tour.pos = 0;
+        },
+        select: function () {
+            // emergency reset
+            if ((hb.pop.arr[hb.pop.mu].length - hb.tour.pos) < 2) {
+                hb.tour.preselect();
+            }
+            // selections
+            var winner = hb.tour.list[hb.tour.pos];
+            var pick = hb.tour.list[hb.tour.pos + 1];
+            // select the best
+            if (hb.pop.arr[hb.pop.mu][pick].fit >
+                    hb.pop.arr[hb.pop.mu][winner].fit) {
+                winner = pick;
+            }
+            // update position
+            hb.tour.pos += 2;
+            return winner;
+        }
+    },
+    offspring: function (size, cross, mut, rand) {
+        // set number of individuals
+        var nc = size * cross;
+        var nm = size * mut;
+        var nr = size * rand;
+        // verify number of individuals
+        if (nc % 2 !== 0) {
+            nc++;
+        }
+        if (nc + nm + nr > size) {
+            nm -= (nc + nm + nr) - size;
+        }
+        if (nc + nm + nr < size) {
+            nm += size - (nc + nm + nr);
+        }
+        // empty population
+        hb.pop.arr[hb.pop.lambda] = [];
+        // prepare tournament
+        hb.tour.preselect();
+        // mutation
+        for (var i = 0; i < nm; i++) {
+            // selection
+            var m1 = hb.tour.select();
+            // mutate
+            hb.mutation(m1);
+        }
+        // crossover
+        for (var i = 0; i < nc; i += 2) {
+            var m1 = hb.tour.select();
+            var m2 = hb.tour.select();
+            hb.crossover(m1, m2);
+        }
+        // random
+        for (var i = 0; i < nr; i++) {
+            var dt = [];
+            for (var j = 0; j < hb.pop.arr[hb.pop.mu][0].dim.length; j++) {
+                dt.push(hb.random(hb.lim[j]));
+            }
+            hb.pop.arr[hb.pop.lambda].push(hb.individual(1, dt));
+        }
+    },
+    delta: function (u, l, h) {
+        var d = 0;
+        var aa = 0;
+        if (u >= 1 - 1e-9) {
+            d = h;
+        } else if (u <= 0 + 1e-9) {
+            d = l;
+        } else {
+            if (u < 0.5) {
+                aa = 2 * u + (1 - 2 * u) * Math.pow((1 + l),
+                        (hb.ini.eta.m + 1));
+                d = Math.pow(aa, (1 / (hb.ini.eta.m + 1))) - 1;
+            } else {
+                aa = 2 * (1 - u) + 2 * (u - 0.5) * Math.pow((1 - h),
+                        (hb.ini.eta.m + 1));
+                d = 1 - Math.pow(aa, (1 / (hb.ini.eta.m + 1)));
+            }
+        }
+        // correction
+        if (d < -1) {
+            d = -1;
+        }
+        if (d > 1) {
+            d = 1;
+        }
+        return d;
+    },
+    beta: function (u) {
+        var b;
+        if (1 - u < 1e-6) {
+            u = 1 - 1e-6;
+        }
+        if (u < 0) {
+            u = 0;
+        }
+        if (u < 0.5) {
+            b = Math.pow(2 * u, (1 / (hb.ini.eta.c + 1)));
+        } else {
+            b = Math.pow((0.5 / (1 - u)), (1 / (hb.ini.eta.c + 1)));
+        }
+        return b;
+    },
+    mutation: function (m1) {
+        // copy individual
+        var dt = [];
+        for (var j = 0; j < hb.pop.arr[hb.pop.mu][m1].dim.length; j++) {
+            dt.push(hb.pop.arr[hb.pop.mu][m1].dim[j]);
+        }
+        hb.pop.arr[hb.pop.lambda].push(hb.individual(1, dt));
+        var i = hb.pop.arr[hb.pop.lambda].length - 1;
+        // for each site
+        for (var s = 0; s < hb.pop.arr[hb.pop.lambda][i].dim.length; s++) {
+            // get value
+            var x = hb.pop.arr[hb.pop.lambda][i].dim[s];
+            var r = hb.lim[s].max - hb.lim[s].min;
+            console.log(r);
+            // get distance min
+            var l = (hb.lim[s].min - x) / r;
+            if (l < -1.0) {
+                l = -1.0;
+            }
+            // get distance max
+            var h = (hb.lim[s].max - x) / r;
+            if (h > 1.0) {
+                h = 1.0;
+            }
+            // fix delta
+            if (-1 * l < h) {
+                h = -1 * l;
+            } else {
+                l = -1 * h;
+            }
+            var u = Math.random();
+            // actual delta
+            var d = hb.delta(u, l, h) * r;
+            hb.pop.arr[hb.pop.lambda][i].dim[s] += d;
+            // limits
+            if (hb.pop.arr[hb.pop.lambda][i].dim[s] < hb.lim[s].min) {
+                hb.pop.arr[hb.pop.lambda][i].dim[s] = hb.lim[s].min;
+            }
+            if (hb.pop.arr[hb.pop.lambda][i].dim[s] > hb.lim[s].max) {
+                hb.pop.arr[hb.pop.lambda][i].dim[s] = hb.lim[s].max;
+            }
+        }
+    },
+    crossover: function (m1, m2) {
+        // create children
+        hb.pop.arr[hb.pop.lambda].push(hb.individual(1, [0, 0, 0, 0, 0, 0]));
+        hb.pop.arr[hb.pop.lambda].push(hb.individual(1, [0, 0, 0, 0, 0, 0]));
+        var c1 = hb.pop.arr[hb.pop.lambda].length - 2;
+        var c2 = hb.pop.arr[hb.pop.lambda].length - 1;
+        for (var s = 0; s < hb.pop.arr[hb.pop.mu][m1].dim.length; s++) {
+            // parents
+            var p1 = hb.pop.arr[hb.pop.mu][m1].dim[s];
+            var p2 = hb.pop.arr[hb.pop.mu][m2].dim[s];
+            // limits
+            var l = hb.lim[s].min;
+            var h = hb.lim[s].max;
+            // check order
+            var o = false;
+            if (p1 > p2) {
+                var t = p1;
+                p1 = p2;
+                p2 = t;
+                o = true;
+            }
+            // mean and difference
+            var m = (p1 + p2) * 0.5;
+            var d = p2 - p1;
+            // check limits
+            var r = 0;
+            if ((p1 - l) < (h - p2)) {
+                r = p1 - l;
+            } else {
+                r = h - p2;
+            }
+            if (r < 0) {
+                r = 0;
+            }
+            // check difference
+            var u = 0;
+            if (d > 1e-6) {
+                var a = 1 + (2 * r / d);
+                var um = 1 - (0.5 / Math.pow(a, hb.ini.eta.c + 1));
+                u = um * Math.random();
+            } else {
+                u = Math.random();
+            }
+            // get beta
+            var b = hb.beta(u);
+            if (Math.abs(d * b) > Number.POSITIVE_INFINITY) {
+                b = Number.POSITIVE_INFINITY / d;
+            }
+            // get values
+            var v2 = m + (b * 0.5 * d);
+            var v1 = m - (b * 0.5 * d);
+            // limits
+            if (v2 < l) {
+                v2 = l;
+            }
+            if (v2 > h) {
+                v2 = h;
+            }
+            if (v1 < l) {
+                v1 = l;
+            }
+            if (v1 > h) {
+                v1 = h;
+            }
+            // children
+            hb.pop.arr[hb.pop.lambda][c2].dim[s] = v2;
+            hb.pop.arr[hb.pop.lambda][c1].dim[s] = v1;
+            if (o) {
+                hb.pop.arr[hb.pop.lambda][c2].dim[s] = v1;
+                hb.pop.arr[hb.pop.lambda][c1].dim[s] = v2;
+            }
+        }
+    },
     main: function () {
         // start timing
         hb.time.start();
         // exploration
         hb.parents(hb.ini.ex.mu);
         hb.evaluate(hb.pop.mu);
-        /* for (var i = 0; i < hb.ini.gens; i++) {
-         hb.offspring(hb.ini.ex.lambda, hb.ini.ex.cross,
-         hb.ini.ex.mut, hb.ini.ex.rand);
-         hb.evaluate(hb.pop.lambda);
-         hb.merge();
-         }*/
+        for (var i = 0; i < hb.ini.gens; i++) {
+            hb.offspring(hb.ini.ex.lambda, hb.ini.ex.cross,
+                    hb.ini.ex.mut, hb.ini.ex.rand);
+            hb.evaluate(hb.pop.lambda);
+            //hb.merge();
+        }
         // end timing
         hb.output('Time: ' + hb.time.end() + ' ms');
     }
