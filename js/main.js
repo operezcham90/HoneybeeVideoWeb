@@ -7,7 +7,10 @@ var hb = {
     },
     ini: {
         frame: {
-            curr: 2
+            curr: 0
+        },
+        read() {
+            hb.ini.frame.curr = 2;
         }
     },
     space: {
@@ -62,6 +65,7 @@ var hb = {
         }
     },
     start: function () {
+        hb.ini.read();
         hb.space.read();
     },
     main: function () {
