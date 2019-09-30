@@ -7,7 +7,7 @@ var hb = {
     },
     ini: {
         frame: {
-            current: 2
+            curr: 2
         }
     },
     space: {
@@ -25,15 +25,13 @@ var hb = {
             var i = this.id.split('-')[1];
             hb.space.arr[i].can.getContext('2d')
                     .drawImage(hb.space.arr[i].img, 0, 0);
-            var data = hb.space.arr[i].canvas
-                    .getContext('2d')
-                    .getImageData(0, 0,
-                            hb.space.arr[i].img.naturalWidth,
-                            hb.space.arr[i].img.naturalHeight).data;
-            for (var j = 0; j < (data.length / 4); j++) {
+            var d = hb.space.arr[i].can
+                    .getContext('2d').getImageData(0, 0,
+                    hb.space.arr[i].img.naturalWidth,
+                    hb.space.arr[i].img.naturalHeight).data;
+            for (var j = 0; j < (d.length / 4); j++) {
                 var b = j * 4;
-                hb.space.arr[i].gr[j] =
-                        (data[b] + data[b + 1] + data[b + 2]) / 3;
+                hb.space.arr[i].gr[j] = (d[b] + d[b + 1] + d[b + 2]) / 3;
             }
             hb.space.loaded++;
             if (hb.space.loaded === 2) {
@@ -57,9 +55,8 @@ var hb = {
             // read two frames
             hb.space.loaded = 0;
             hb.space.arr = [];
-            for (var i = hb.ini.frame.current - 1;
-                    i <= hb.ini.frame.current; i++) {
-                var file = 'img/' + hb.space.pad(i + 1, 8) + '.jpg';
+            for (var i = hb.ini.frame.curr - 1; i <= hb.ini.frame.curr; i++) {
+                var file = 'img/' + hb.space.pad(i, 8) + '.jpg';
                 hb.space.create(file);
             }
         }
