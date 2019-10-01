@@ -18,6 +18,13 @@ var hb = {
             mut: 0,
             rand: 0
         },
+        fo: {
+            mu: 0,
+            lambda: 0,
+            cross: 0,
+            mut: 0,
+            rand: 0
+        },
         eta: {
             m: 0,
             c: 0
@@ -33,6 +40,11 @@ var hb = {
             hb.ini.ex.cross = 0.1;
             hb.ini.ex.mut = 0.6;
             hb.ini.ex.rand = 0.3;
+            hb.ini.fo.mu = hb.ini.ex.mu * 10;
+            hb.ini.fo.lambda = hb.ini.fo.mu * 2;
+            hb.ini.fo.cross = 0.3;
+            hb.ini.fo.mut = 0.6;
+            hb.ini.fo.rand = 0.1;
             hb.ini.eta.m = 25;
             hb.ini.eta.c = 2;
             hb.ini.u = Math.ceil(139.52);
@@ -558,6 +570,68 @@ var hb = {
                     hb.pop.mulambda][hb.sort.list[i]]);
         }
     },
+    recruit: {
+        list: [],
+        begin: function () {
+            // assign recruits
+            var sum = 0;
+            for (var i = 0; i < hb.ini.ex.mu; i++) {
+                if (hb.pop.arr[hb.pop.mu][i].fit > 0) {
+                    sum += hb.pop.arr[hb.pop.mu][i].fit;
+                }
+            }
+            for (var i = 0; i < hb.ini.ex.mu; i++) {
+                var rec = hb.pop.arr[hb.pop.mu][i].fit * hb.ini.fo.mu / sum;
+                if (rec > 0) {
+                    hb.recruit.list.push(Math.floor(rec));
+                }
+            }
+            // verify number of recruits
+            sum = 0;
+            for (var i = 0; i < hb.recruit.list.length; i++) {
+                sum += hb.recruit.list[i];
+            }
+            if (sum > hb.ini.fo.mu) {
+                hb.recruit.list[0] -= sum - hb.ini.fo.mu;
+            }
+            if (sum < hb.ini.fo.mu) {
+                hb.recruit.list[0] += hb.ini.fo.mu - sum;
+            }
+            // change limits
+            hb.lim[0].min = hb.pop.arr[hb.pop.mu][0].dim[0];
+            hb.lim[0].max = hb.pop.arr[hb.pop.mu][0].dim[0];
+            for (var i = 1; i < hb.recruit.list.length; i++) {
+                if (hb.pop.arr[hb.pop.mu][i].dim[0] < hb.lim[0].min) {
+                    hb.lim[0].min = hb.pop.arr[hb.pop.mu][i].dim[0];
+                }
+                if (hb.pop.arr[hb.pop.mu][i].dim[0] > hb.lim[0].max) {
+                    hb.lim[0].max = hb.pop.arr[hb.pop.mu][i].dim[0];
+                }
+            }
+            hb.lim[1].min = hb.pop.arr[hb.pop.mu][0].dim[1];
+            hb.lim[1].max = hb.pop.arr[hb.pop.mu][0].dim[1];
+            for (var i = 1; i < hb.recruit.list.length; i++) {
+                if (hb.pop.arr[hb.pop.mu][i].dim[1] < hb.lim[1].min) {
+                    hb.lim[1].min = hb.pop.arr[hb.pop.mu][i].dim[1];
+                }
+                if (hb.pop.arr[hb.pop.mu][i].dim[1] > hb.lim[1].max) {
+                    hb.lim[1].max = hb.pop.arr[hb.pop.mu][i].dim[1];
+                }
+            }
+            // new population
+            hb.pop.arr[hb.pop.mulambda] = [];
+            for (var i = 0; i < hb.recruit.list.length; i++) {
+                for (var j = 0; j < hb.recruit.list[i]; j++) {
+                    hb.pop.arr[hb.pop.mulambda].push(hb.pop.arr[hb.pop.mu][i]);
+                }
+            }
+            hb.pop.arr[hb.pop.mu] = [];
+            for (var i = 0; i < hb.pop.arr[hb.pop.mulambda].length; i++) {
+                hb.pop.arr[hb.pop.mu].push(hb.pop.arr[hb.pop.mulambda][i]);
+            }
+            hb.pop.arr[hb.pop.mulambda] = [];
+        }
+    },
     main: function () {
         // start timing
         hb.time.start();
@@ -570,6 +644,8 @@ var hb = {
             hb.evaluate(hb.pop.lambda);
             hb.merge();
         }
+        // recreuitment
+        hb.recruit.begin();
         // end timing
         hb.output('Time: ' + hb.time.end() + ' ms');
     }
