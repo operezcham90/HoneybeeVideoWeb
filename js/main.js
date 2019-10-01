@@ -646,6 +646,13 @@ var hb = {
         }
         // recreuitment
         hb.recruit.begin();
+        // foraging
+        for (var i = 0; i < hb.ini.gens / 2; i++) {
+            hb.offspring(hb.ini.fo.lambda, hb.ini.fo.cross,
+                    hb.ini.fo.mut, hb.ini.fo.rand);
+            hb.evaluate(hb.pop.lambda);
+            hb.merge();
+        }
         // end timing
         hb.output('Time: ' + hb.time.end() + ' ms');
     }
