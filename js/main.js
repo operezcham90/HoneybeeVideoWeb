@@ -551,6 +551,12 @@ var hb = {
             hb.pop.arr[hb.pop.mulambda].push(hb.pop.arr[hb.pop.lambda][i]);
         }
         hb.sort.begin();
+        var mu = hb.pop.arr[hb.pop.mu].length;
+        hb.pop.arr[hb.pop.mu] = [];
+        for (var i = 0; i < mu; i++) {
+            hb.pop.arr[hb.pop.mu].push(hb.pop.arr[
+                    hb.pop.mulambda][hb.sort.list[i]]);
+        }
     },
     main: function () {
         // start timing
