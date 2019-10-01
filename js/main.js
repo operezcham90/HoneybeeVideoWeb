@@ -394,7 +394,6 @@ var hb = {
             // get value
             var x = hb.pop.arr[hb.pop.lambda][i].dim[s];
             var r = hb.lim[s].max - hb.lim[s].min;
-            console.log(r);
             // get distance min
             var l = (hb.lim[s].min - x) / r;
             if (l < -1.0) {
@@ -497,6 +496,62 @@ var hb = {
             }
         }
     },
+    sort: {
+        list: [],
+        rec: function (l, r) {
+            var lh = l;
+            var rh = r;
+            var i = hb.sort.list[l];
+            while (l < r) {
+                while ((-1 * hb.pop.arr[hb.pop.mulambda][hb.sort.list[r]].fit
+                        >= -1 * hb.pop.arr[hb.pop.mulambda][i].fit)
+                        && (l < r)) {
+                    r--;
+                }
+                if (l !== r) {
+                    hb.sort.list[l] = hb.sort.list[r];
+                    l++;
+                }
+                while ((-1 * hb.pop.arr[hb.pop.mulambda][hb.sort.list[l]].fit
+                        <= -1 * hb.pop.arr[hb.pop.mulambda][i].fit)
+                        && (l < r)) {
+                    l++;
+                }
+                if (l !== r) {
+                    hb.sort.list[r] = hb.sort.list[l];
+                    r--;
+                }
+            }
+            hb.sort.list[l] = i;
+            var p = l;
+            l = lh;
+            r = rh;
+            if (l < p) {
+                hb.sort.rec(l, p - 1);
+            }
+            if (r > p) {
+                hb.sort.rec(p + 1, r);
+            }
+        },
+        begin: function () {
+            var e = hb.pop.arr[hb.pop.mulambda].length;
+            hb.sort.list = [];
+            for (var i = 0; i < e; i++) {
+                hb.sort.list.push(i);
+            }
+            hb.sort.rec(0, e - 1);
+        }
+    },
+    merge: function () {
+        hb.pop.arr[hb.pop.mulambda] = [];
+        for (var i = 0; i < hb.pop.arr[hb.pop.mu].length; i++) {
+            hb.pop.arr[hb.pop.mulambda].push(hb.pop.arr[hb.pop.mu][i]);
+        }
+        for (var i = 0; i < hb.pop.arr[hb.pop.lambda].length; i++) {
+            hb.pop.arr[hb.pop.mulambda].push(hb.pop.arr[hb.pop.lambda][i]);
+        }
+        hb.sort.begin();
+    },
     main: function () {
         // start timing
         hb.time.start();
@@ -507,7 +562,7 @@ var hb = {
             hb.offspring(hb.ini.ex.lambda, hb.ini.ex.cross,
                     hb.ini.ex.mut, hb.ini.ex.rand);
             hb.evaluate(hb.pop.lambda);
-            //hb.merge();
+            hb.merge();
         }
         // end timing
         hb.output('Time: ' + hb.time.end() + ' ms');
