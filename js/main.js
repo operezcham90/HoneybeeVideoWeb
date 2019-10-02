@@ -35,7 +35,7 @@ var hb = {
         read() {
             hb.ini.frame.curr = 2;
             hb.ini.gens = 3;
-            hb.ini.ex.mu = 100;
+            hb.ini.ex.mu = 50;
             hb.ini.ex.lambda = hb.ini.ex.mu * 2;
             hb.ini.ex.cross = 0.1;
             hb.ini.ex.mut = 0.6;
@@ -78,6 +78,8 @@ var hb = {
         load: function () {
             // load frames
             var i = this.id.split('-')[1];
+            hb.space.arr[i].can.width = hb.space.arr[i].img.naturalWidth;
+            hb.space.arr[i].can.height = hb.space.arr[i].img.naturalHeight;
             hb.space.arr[i].can.getContext('2d')
                     .drawImage(hb.space.arr[i].img, 0, 0);
             var d = hb.space.arr[i].can
@@ -141,39 +143,23 @@ var hb = {
         hb.lim[1].min = 0;
         hb.lim[1].max = hb.space.arr[1].img.naturalHeight - hb.ini.h - 1;
         hb.lim[2].min = 0;
-        hb.lim[2].max = hb.ini.w - 1;
+        hb.lim[2].max = 0;//hb.ini.w - 1;
         hb.lim[3].min = 0;
-        hb.lim[3].max = hb.ini.h - 1;
-        hb.lim[4].min = 0;
-        hb.lim[4].max = hb.ini.w - 1;
-        hb.lim[5].min = 0;
-        hb.lim[5].max = hb.ini.h - 1;
+        hb.lim[3].max = 0;//hb.ini.h - 1;
+        hb.lim[4].min = hb.ini.w;//0;
+        hb.lim[4].max = hb.ini.w;
+        hb.lim[5].min = hb.ini.h;//0;
+        hb.lim[5].max = hb.ini.h;
         // initial search area
-        var win = Math.ceil(Math.max(hb.ini.w, hb.ini.h) / 8);
+        var win = Math.floor(Math.max(hb.ini.w, hb.ini.h) / 2);
         var lim = [
             {
-                min: hb.ini.u - win,
+                min: hb.ini.u,
                 max: hb.ini.u + win
             },
             {
-                min: hb.ini.v - win,
+                min: hb.ini.v,
                 max: hb.ini.v + win
-            },
-            {
-                min: hb.ini.w - win,
-                max: hb.ini.w - 1
-            },
-            {
-                min: hb.ini.h - win,
-                max: hb.ini.h - 1
-            },
-            {
-                min: hb.ini.w - win,
-                max: hb.ini.w - 1
-            },
-            {
-                min: hb.ini.h - win,
-                max: hb.ini.h - 1
             }
         ];
         // empty population
@@ -182,16 +168,15 @@ var hb = {
         for (var i = 0; i < size; i++) {
             var dim = [0, 0, 0, 0, 0, 0];
             // independent random components
-            for (var j = 0; j < 4; j++) {
+            for (var j = 0; j < 2; j++) {
                 dim[j] = hb.random(lim[j]);
             }
             // dependent random components
-            for (var j = 4; j < 6; j++) {
-                dim[j] = hb.random({
-                    min: lim[j].min,
-                    max: lim[j].max - dim[j - 2]
-                });
+            for (var j = 2; j < 4; j++) {
+                dim[j] = 0;
             }
+            dim[4] = hb.ini.w;
+            dim[5] = hb.ini.h;
             hb.pop.arr[hb.pop.mu].push(hb.individual(1, dim));
         }
     },
@@ -645,16 +630,33 @@ var hb = {
             hb.merge();
         }
         // recreuitment
-        hb.recruit.begin();
-        // foraging
-        for (var i = 0; i < hb.ini.gens / 2; i++) {
-            hb.offspring(hb.ini.fo.lambda, hb.ini.fo.cross,
-                    hb.ini.fo.mut, hb.ini.fo.rand);
-            hb.evaluate(hb.pop.lambda);
-            hb.merge();
-        }
+        /* hb.recruit.begin();
+         // foraging
+         for (var i = 0; i < hb.ini.gens / 2; i++) {
+         hb.offspring(hb.ini.fo.lambda, hb.ini.fo.cross,
+         hb.ini.fo.mut, hb.ini.fo.rand);
+         hb.evaluate(hb.pop.lambda);
+         hb.merge();
+         }*/
         // end timing
         hb.output('Time: ' + hb.time.end() + ' ms');
+        // draw results
+        var ctx = $('#display')[0].getContext('2d');
+        $('#display')[0].width = hb.space.arr[1].img.naturalWidth;
+        $('#display')[0].height = hb.space.arr[1].img.naturalHeight;
+        ctx.drawImage(hb.space.arr[1].img, 0, 0);
+        var avg = 0;
+        for (var i = 0; i < hb.pop.arr[hb.pop.mu].length; i++) {
+            var i1 = hb.pop.arr[hb.pop.mu][i];
+            var u1 = Math.floor(i1.dim[0] + i1.dim[2]);
+            var v1 = Math.floor(i1.dim[1] + i1.dim[3]);
+            var nx = Math.floor(i1.dim[4]);
+            var ny = Math.floor(i1.dim[5]);
+            ctx.strokeRect(u1, v1, nx, ny);
+            avg += i1.fit;
+        }
+        avg /= hb.pop.arr[hb.pop.mu].length;
+        hb.output('Average fitness: ' + avg);
     }
 }
 // start
